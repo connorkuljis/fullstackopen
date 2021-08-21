@@ -1,63 +1,45 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-const Header = (props) => {
+const Header = ({ text }) => {
 	return (
-		<h1>{props.course.name}</h1>
+		<h1>{text}</h1>
 	)
 }
 
-const Content = (props) => {
-	return (
-		<div>
-			<Part part={props.course.parts[0]}/>
-			<Part part={props.course.parts[1]}/>
-			<Part part={props.course.parts[2]}/>
-		</div>
+const Statistics = ({ text, value }) => {
+	return ( 
+		<p>{text} {value} </p>
 	)
-}
 
-const Part = (props) => {
-	return (
-		<p>{props.part.name} {props.part.exercises}</p>
-	)
-}
-
-const Total = (props) => {
-	let total = 0
-	props.course.parts.forEach(value => {
-		total += value.exercises
-	})
-
-	return (
-		<p>Number of exercises {total}</p>
-	)
 }
 
 const App = () => {
-	const course = {
-		name: 'Half Stack application development',
-		parts: [
-			{
-				name: 'Fundamentals of React',
-				exercises: 10
-			},
-			{
-				name: 'Using props to pass data',
-				exercises: 7
-			},
-			{
-				name: 'State of a component',
-				exercises: 14
-			}
-		]
-	}
+  // save clicks of each button to its own state
+  const [good, setGood] = useState(0)
+  const [neutral, setNeutral] = useState(0)
+  const [bad, setBad] = useState(0)
 
-	return (
-		<div>
-			<Header course={course} />
-			<Content course={course}/>
-			<Total course={course}/>
-		</div>
-	)
+	const handleGoodClick = () => setGood(good + 1)
+	const handleNeutralClick = () => setNeutral(neutral + 1)
+	const handleBadClick = () => setBad(bad + 1)
+
+	const total = good + bad + neutral
+	const sum = good + (bad * -1) // bad is weighted as -1 in the set
+
+  return (
+    <div>
+	  <Header text="Give Feedback"/>
+		<button onClick={handleGoodClick}>good</button>
+		<button onClick={handleNeutralClick}>neutral</button>
+		<button onClick={handleBadClick}>bad</button>
+	  <Header text="Statistics"/>
+	  <Statistics text="good" value={good}/>
+	  <Statistics text="neutral" value={neutral}/>
+	  <Statistics text="bad" value={bad}/>
+	  <Statistics text="average" value={sum/total}/>
+	  <Statistics text="postive" value={good/total}/>
+    </div>
+  )
 }
+
 export default App
