@@ -1,83 +1,60 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import Person from './components/Person'
-import Filter from './components/Filter'
-import PersonForm from './components/PersonForm'
-import Persons from './components/Persons'
+import Country from './components/Country'
+
+/**
+ * get data from : https://restcountries.com/v3.1/all
+ *
+ * The user interface is very simple. The country to be shown is found by
+ * typing a search query into the search field.
+ *
+ * If there are too many (over 10) countries that match the query, then the user
+ * is prompted to make their query more specific:
+	{countries.map(country => 
+	  <Country key={country.name.common} country={country} />
+ */
 
 const App = () => {
-  const [persons, setPersons] = useState([])
-  const [newName, setNewName] = useState('')
-  const [newNumber, setNewNumber] = useState('')
-  const [newFilter, setNewFilter] = useState('')
+  const [countries, setCountries] = useState([])
+  const [searchWord, setSearchWord] = useState('')
+  const [count, setCount] = useState(0)
 
   useEffect(() => {
-    console.log('effect')  
     axios
-      .get('http://localhost:3001/persons')
+    .get('https://restcountries.com/v3.1/all')
       .then(response => {
-	console.log('promise fulfilled')  
-	setPersons(response.data)
-    })
+	setCountries(response.data)
+	console.log(response.data)  
+      })
   }, [])
 
-  const personsToShow = newFilter.length > 0
-    ? persons.filter(person => person.name.toLowerCase().includes(newFilter.toLowerCase()))
-    : persons
+  const handleSearchWordChange = (event) => {
+    const temp = countries.filter(country => country.name.common.toLowerCase().includes(searchWord.toLowerCase()))
+    console.log(temp.length)  
+    setSearchWord(event.target.value)
+    setCount(temp)
 
-  const addName = (event) => {
-    event.preventDefault()
-    console.log(event.target.value)
-    const newPerson = { 
-      name: newName, 
-      number: newNumber
-    }
-    if (persons.filter(s => s.name === newPerson.name).length > 0) {
-      alert(newPerson.name + " is already added to phonebook")
-    }
-    else {
-      setPersons(persons.concat(newPerson))
-    }
-    setNewName('')
-    setNewNumber('')
+
   }
 
-  const handleNameChange = (event) => {
-    setNewName(event.target.value)
-  }
+  const countriesToShow = searchWord.length > 0
+    ? countries.filter(country => country.name.common.toLowerCase().includes(searchWord.toLowerCase()))
+    : []
 
-  const handleNumberChange = (event) => {
-    setNewNumber(event.target.value)
-  }
-
-  const handleFilterChange = (event) => {
-    setNewFilter(event.target.value)
-    console.log(personsToShow)
-  }
 
   return (
     <div>
-      <h2>Phonebook</h2>
-
-      <Filter newFilter={newFilter} handleFilterChange={handleFilterChange} />
-     
-      <h3>Add a new</h3>
-
-      <PersonForm
-	addName={addName}
-	newName={newName}
-	newNumber={newNumber}
-	handleNameChange={handleNameChange}
-	handleNumberChange={handleNumberChange}
-      />
-	
-
-      <h3>Numbers</h3>
-
-      <Persons persons={persons} personsToShow={personsToShow} />
-
+      <form>
+	find countries 
+	<input value={searchWord} onChange={handleSearchWordChange}/>
+      </form>
+    <ul>
+      {countriesToShow.map(country => 
+	<Country key={country.name.common} country={country} /> )}
+    </ul>
     </div>
   )
 }
 
 export default App
+
